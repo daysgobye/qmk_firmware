@@ -19,11 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "split_util.h"
 
 enum layers {
-    _QWERTY,
+    _QWERTY_GUI,
+    _QWERTY_CTRL,
     _RAISE,
     _LOWER,
     _ADJUST
 };
+enum keycodes {
+  QWERTY_GUI = SAFE_RANGE,
+  QWERTY_CTRL
+};
+int active_base_layer = 0;
+
 
 #define KC_CTSC RCTL_T(KC_SCLN)
 #define LOWER_SPC LT(_LOWER, KC_SPC)
@@ -34,15 +41,25 @@ enum layers {
 #define CTRL_A MT(MOD_LCTL,KC_A)
 #define PREVWINDOW MT(MOD_LCTL, KC_LEFT)
 #define NEXTWINDOW MT(MOD_LCTL, KC_RGHT)
+#define GUI_A MT(MOD_LGUI, KC_A)
+#define GUI_SCLN MT(MOD_LGUI, KC_SCLN)
+#define ALT_Q MT(MOD_LALT,KC_Q)
+#define ALT_P MT(MOD_LALT,KC_P)
 
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [_QWERTY] = LAYOUT_split_3x5_3( 
-        KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,             KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  
+  [_QWERTY_GUI] = LAYOUT_split_3x5_3( 
+        ALT_Q,    KC_W,    KC_E,    KC_R,    KC_T,             KC_Y,    KC_U,    KC_I,    KC_O,   ALT_P,  
       CTRL_A,    KC_S,    KC_D,    KC_F,    KC_G,             KC_H,    KC_J,    KC_K,    KC_L, KC_CTSC, 
      SHFT_Z,    KC_X,    KC_C,    KC_V,    KC_B,             KC_N,    KC_M, KC_COMM,  KC_DOT, SHIFT_SLASH, 
                        MO(_LOWER),KC_LGUI, RASE_ENT,       RASE_BACK, LOWER_SPC, KC_TAB
+    ),
+  [_QWERTY_CTRL] = LAYOUT_split_3x5_3( 
+        ALT_Q,    KC_W,    KC_E,    KC_R,    KC_T,             KC_Y,    KC_U,    KC_I,    KC_O,   ALT_P,  
+      GUI_A,    KC_S,    KC_D,    KC_F,    KC_G,             KC_H,    KC_J,    KC_K,    KC_L, GUI_SCLN, 
+     SHFT_Z,    KC_X,    KC_C,    KC_V,    KC_B,             KC_N,    KC_M, KC_COMM,  KC_DOT, SHIFT_SLASH, 
+                       MO(_LOWER),KC_LCTL, RASE_ENT,       RASE_BACK, LOWER_SPC, KC_TAB
     ),
   [_RAISE] = LAYOUT_split_3x5_3( 
         KC_1,    KC_2,    KC_3,    KC_4,    KC_5,           KC_6,    KC_7,    KC_8,    KC_9,    KC_0, 
@@ -55,8 +72,37 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        KC_ESC,   XXXXXXX, XXXXXXX, XXXXXXX, RGB_TOG,            KC_LEFT, KC_DOWN,   KC_UP, KC_RGHT, KC_DQT, 
        KC_ESC,   KC_TILD, PREVWINDOW, NEXTWINDOW, RGB_MODE_FORWARD,   KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE, 
                             _______,  KC_LGUI,  KC_ENT,         KC_BSPC,  KC_SPC, _______
+                            ),
+  [_ADJUST] = LAYOUT_split_3x5_3( 
+
+        QWERTY_CTRL, QWERTY_GUI, XXXXXXX, XXXXXXX,XXXXXXX,            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,XXXXXXX, 
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,XXXXXXX,            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,XXXXXXX, 
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,XXXXXXX,            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,XXXXXXX,
+                           XXXXXXX, XXXXXXX,XXXXXXX,            XXXXXXX, XXXXXXX, XXXXXXX
                             )
 };
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+  return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  switch (keycode) {
+    case QWERTY_GUI:
+        set_single_persistent_default_layer(_QWERTY_GUI);
+        active_base_layer=0;
+      return false;
+      break;
+    case QWERTY_CTRL:
+        set_single_persistent_default_layer(_QWERTY_CTRL);
+        active_base_layer=1;
+      return false;
+      break;
+ 
+  }
+  return true;
+}
+
 
 #ifdef OLED_DRIVER_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
@@ -77,10 +123,18 @@ static void render_logo(void) {
 
 static void render_status(void) {
    switch (get_highest_layer(layer_state)) {
-    case _QWERTY:
+    case _QWERTY_GUI:
       oled_write_P(PSTR("B R L A O\n"), false);
       oled_write_P(PSTR("^\n"), false);
-      oled_write_P(PSTR("Layer: Base\n"), false);
+      if (active_base_layer==0) {
+      oled_write_P(PSTR("Layer: Base gui\n"), false);
+      }else if(active_base_layer==1){
+      oled_write_P(PSTR("Layer: Base ctrl\n"), false);
+      }else{
+      oled_write_P(PSTR("Layer: Base \n"), false);
+      }
+      break;
+      oled_write_P(PSTR("^\n"), false);
       break;
     case _RAISE:
       oled_write_P(PSTR("B R L A O\n"), false);
