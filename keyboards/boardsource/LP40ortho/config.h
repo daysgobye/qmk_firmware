@@ -50,15 +50,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define BACKLIGHT_PIN B7
 //#define BACKLIGHT_LEVELS 3
 //#define BACKLIGHT_BREATHING
-#define RGBLIGHT_ANIMATIONS
+//#define RGBLIGHT_ANIMATIONS
 #define RGB_DI_PIN C6
 
 #ifdef RGBLIGHT_ENABLE
-#define RGBLED_NUM 12    // Number of LEDs
+#define RGBLED_NUM 6    // Number of LEDs
 #endif
 
 #define DRIVER_LED_TOTAL  54
-
+//#define LIB8_ATTINY
 
 //#define RGB_DI_PIN E2
 //#ifdef RGB_DI_PIN
