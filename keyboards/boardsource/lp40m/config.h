@@ -24,11 +24,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PRODUCT_ID   0x0000
 #define DEVICE_VER   0x0001
 #define MANUFACTURER Boardsource
-#define PRODUCT      LP40-O
+#define PRODUCT      LP40-M
 
 /* key matrix size */
 #define MATRIX_ROWS 4
-#define MATRIX_COLS 12
+#define MATRIX_COLS 3
 
 /*
  * Keyboard Matrix Assignments
@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #define MATRIX_ROW_PINS {B0, B1, B2, B3}
-#define MATRIX_COL_PINS {B5, B6, B7, F5, C7, D0, D1, D2, D3, D4, D5, D6}
+#define MATRIX_COL_PINS {B5,B6,B7}
 #define UNUSED_PINS
 
 /* COL2ROW, ROW2COL */
@@ -54,10 +54,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_DI_PIN C6
 #define RGB_MATRIX_MAXIMUM_BRIGHTNESS 150
 #ifdef RGBLIGHT_ENABLE
-#define RGBLED_NUM 10    // Number of LEDs
+#define RGBLED_NUM 6    // Number of LEDs
 #endif
 
-#define DRIVER_LED_TOTAL  55
+#define DRIVER_LED_TOTAL  22
 
 /* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */
 #define DEBOUNCE 5
